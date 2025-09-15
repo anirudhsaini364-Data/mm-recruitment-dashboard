@@ -2,70 +2,48 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# ----------------------
-# Dummy Data
-# ----------------------
+# --------------------------
+# Dummy Recruitment Data
+# --------------------------
 data = {
-    "Department": ["IT", "HR", "Finance", "IT", "Finance", "HR", "IT", "Finance", "HR", "IT"],
-    "Recruiter": ["A", "B", "C", "A", "B", "C", "D", "E", "F", "A"],
-    "Status": [
-        "Joined", "Offer", "In Process", "Cancelled", "Joined",
-        "Selection", "Offer", "Reserve for IJP", "Joined", "Cancelled"
-    ],
-    "Month": ["Jan", "Feb", "Feb", "Mar", "Mar", "Mar", "Apr", "Apr", "Apr", "Apr"]
+    "Department": ["IT", "HR", "Finance", "IT", "HR", "Finance", "IT", "HR", "Finance", "IT"],
+    "Status": ["Joined", "Offer", "Cancelled", "In Process", "Selection", "Reserve for IJP", "Joined", "Offer", "Cancelled", "Joined"],
+    "Recruiter": ["R1", "R2", "R1", "R3", "R2", "R1", "R3", "R2", "R1", "R3"],
+    "Month": ["Jan", "Feb", "Mar", "Mar", "Apr", "Apr", "Apr", "Feb", "Jan", "Apr"]
 }
 df = pd.DataFrame(data)
 
-# ----------------------
-# Page Config
-# ----------------------
-st.set_page_config(page_title="M&M Recruitment Dashboard", layout="wide")
-
-# ----------------------
-# Custom CSS for Mahindra Theme
-# ----------------------
+# --------------------------
+# Dashboard Header
+# --------------------------
 st.markdown("""
-    <style>
-        body { background-color: #fafafa; }
-        .header {
-            background-color: #E31837;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .card {
-            padding: 12px;
-            border-radius: 10px;
-            background: white;
-            text-align: center;
-            box-shadow: 0px 2px 6px #ddd;
-            margin: 4px;
-        }
-        .metric-label { font-size:14px; font-weight:600; color:#444; }
-        .metric-value { font-size:20px; font-weight:bold; }
-        .block-container { padding-top:1rem; padding-bottom:0rem; }
-    </style>
+    <div style="
+        background-color:#d32f2f;
+        padding:15px;
+        border-radius:8px;
+        text-align:center;
+        width:100%;
+    ">
+        <h2 style="color:white; font-size:28px; margin:0;">
+            🚀 Mahindra & Mahindra – Recruitment Dashboard
+        </h2>
+    </div>
 """, unsafe_allow_html=True)
 
-# ----------------------
-# Header
-# ----------------------
-st.markdown("<div class='header'>🚀 Mahindra & Mahindra – Recruitment Dashboard</div>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
-# ----------------------
+# --------------------------
 # Filters
-# ----------------------
-col1, col2, col3 = st.columns([1,1,1])
+# --------------------------
+col1, col2, col3 = st.columns(3)
 with col1:
-    dept_filter = st.selectbox("Filter by Department", ["All"] + df["Department"].unique().tolist())
+    dept_filter = st.selectbox("Filter by Department", options=["All"] + df["Department"].unique().tolist())
 with col2:
-    status_filter = st.selectbox("Filter by Status", ["All"] + df["Status"].unique().tolist())
+    status_filter = st.selectbox("Filter by Status", options=["All"] + df["Status"].unique().tolist())
 with col3:
-    recruiter_filter = st.selectbox("Filter by Recruiter", ["All"] + df["Recruiter"].unique().tolist())
+    recruiter_filter = st.selectbox("Filter by Recruiter", options=["All"] + df["Recruiter"].unique().tolist())
 
+# Apply Filters
 filtered_df = df.copy()
 if dept_filter != "All":
     filtered_df = filtered_df[filtered_df["Department"] == dept_filter]
@@ -74,72 +52,87 @@ if status_filter != "All":
 if recruiter_filter != "All":
     filtered_df = filtered_df[filtered_df["Recruiter"] == recruiter_filter]
 
-# ----------------------
+# --------------------------
 # KPI Cards
-# ----------------------
-col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
+# --------------------------
+kpi1, kpi2, kpi3, kpi4, kpi5, kpi6, kpi7 = st.columns(7)
 
-kpis = {
-    "Total Positions": len(filtered_df),
-    "Total Offers": (filtered_df["Status"] == "Offer").sum(),
-    "Joined": (filtered_df["Status"] == "Joined").sum(),
-    "Selection": (filtered_df["Status"] == "Selection").sum(),
-    "In Process": (filtered_df["Status"] == "In Process").sum(),
-    "Reserve for IJP": (filtered_df["Status"] == "Reserve for IJP").sum(),
-    "Cancelled": (filtered_df["Status"] == "Cancelled").sum(),
-}
+with kpi1:
+    st.markdown("**Total Positions**")
+    st.markdown(f"<h3 style='color:#e53935;'>{len(filtered_df)}</h3>", unsafe_allow_html=True)
 
-colors = ["#E31837", "orange", "green", "blue", "gold", "purple", "grey"]
-for col, (label, value), color in zip([col1, col2, col3, col4, col5, col6, col7], kpis.items(), colors):
-    with col:
-        st.markdown(f"<div class='card'><div class='metric-label'>{label}</div>"
-                    f"<div class='metric-value' style='color:{color}'>{value}</div></div>", unsafe_allow_html=True)
+with kpi2:
+    st.markdown("**Total Offers**")
+    st.markdown(f"<h3 style='color:#ff9800;'>{(filtered_df['Status']=='Offer').sum()}</h3>", unsafe_allow_html=True)
 
-# ----------------------
-# Charts Row 1 (Pie + Donut + Funnel)
-# ----------------------
-col1, col2, col3 = st.columns(3)
+with kpi3:
+    st.markdown("**Joined**")
+    st.markdown(f"<h3 style='color:#4caf50;'>{(filtered_df['Status']=='Joined').sum()}</h3>", unsafe_allow_html=True)
 
-with col1:
-    st.subheader("📊 Hires by Department")
-    dept_chart = filtered_df["Department"].value_counts().reset_index()
-    dept_chart.columns = ["Department", "Count"]
-    fig1 = px.pie(dept_chart, names="Department", values="Count", hole=0, height=250, color_discrete_sequence=px.colors.sequential.Reds)
-    fig1.update_traces(textinfo="percent+label")
-    st.plotly_chart(fig1, use_container_width=True)
+with kpi4:
+    st.markdown("**Selection**")
+    st.markdown(f"<h3 style='color:#1e88e5;'>{(filtered_df['Status']=='Selection').sum()}</h3>", unsafe_allow_html=True)
 
-with col2:
-    st.subheader("🍩 Source Mix")
-    source_chart = filtered_df["Status"].value_counts().reset_index()
-    source_chart.columns = ["Status", "Count"]
-    fig2 = px.pie(source_chart, names="Status", values="Count", hole=0.5, height=250, color_discrete_sequence=px.colors.qualitative.Set2)
-    fig2.update_traces(textinfo="percent+label")
-    st.plotly_chart(fig2, use_container_width=True)
+with kpi5:
+    st.markdown("**In Process**")
+    st.markdown(f"<h3 style='color:#fdd835;'>{(filtered_df['Status']=='In Process').sum()}</h3>", unsafe_allow_html=True)
 
-with col3:
-    st.subheader("🔻 Recruitment Funnel")
-    funnel_data = filtered_df["Status"].value_counts().reset_index()
-    funnel_data.columns = ["Stage", "Count"]
-    fig5 = px.funnel(funnel_data, x="Count", y="Stage", height=250, color="Stage", color_discrete_sequence=px.colors.sequential.Reds)
-    st.plotly_chart(fig5, use_container_width=True)
+with kpi6:
+    st.markdown("**Reserve for IJP**")
+    st.markdown(f"<h3 style='color:#8e24aa;'>{(filtered_df['Status']=='Reserve for IJP').sum()}</h3>", unsafe_allow_html=True)
 
-# ----------------------
-# Charts Row 2 (Bar + Column)
-# ----------------------
-col1, col2 = st.columns(2)
+with kpi7:
+    st.markdown("**Cancelled**")
+    st.markdown(f"<h3 style='color:#6d4c41;'>{(filtered_df['Status']=='Cancelled').sum()}</h3>", unsafe_allow_html=True)
 
-with col1:
-    st.subheader("📈 Hires by Month")
-    month_chart = filtered_df["Month"].value_counts().reset_index()
-    month_chart.columns = ["Month", "Count"]
-    fig3 = px.bar(month_chart, x="Month", y="Count", text="Count", color="Month", height=250, color_discrete_sequence=px.colors.sequential.Reds)
-    fig3.update_traces(textposition="outside")
-    st.plotly_chart(fig3, use_container_width=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
-with col2:
-    st.subheader("👤 Hires by Recruiter")
-    rec_chart = filtered_df["Recruiter"].value_counts().reset_index()
-    rec_chart.columns = ["Recruiter", "Count"]
-    fig4 = px.bar(rec_chart, x="Recruiter", y="Count", text="Count", color="Recruiter", height=250, color_discrete_sequence=px.colors.qualitative.Set2)
-    fig4.update_traces(textposition="outside")
-    st.plotly_chart(fig4, use_container_width=True)
+# --------------------------
+# Charts Row 1
+# --------------------------
+c1, c2, c3 = st.columns(3)
+
+# Hires by Department
+with c1:
+    st.markdown("📊 **Hires by Department**")
+    dept_counts = filtered_df["Department"].value_counts().reset_index()
+    dept_counts.columns = ["Department", "Count"]
+    fig = px.pie(dept_counts, names="Department", values="Count", color="Department")
+    st.plotly_chart(fig, use_container_width=True)
+
+# Source Mix
+with c2:
+    st.markdown("🍩 **Source Mix**")
+    status_counts = filtered_df["Status"].value_counts().reset_index()
+    status_counts.columns = ["Status", "Count"]
+    fig = px.pie(status_counts, names="Status", values="Count", hole=0.4, color="Status")
+    st.plotly_chart(fig, use_container_width=True)
+
+# Recruitment Funnel
+with c3:
+    st.markdown("🔻 **Recruitment Funnel**")
+    funnel = filtered_df["Status"].value_counts().reset_index()
+    funnel.columns = ["Stage", "Count"]
+    fig = px.funnel(funnel, x="Count", y="Stage", color="Stage")
+    st.plotly_chart(fig, use_container_width=True)
+
+# --------------------------
+# Charts Row 2
+# --------------------------
+c4, c5 = st.columns(2)
+
+# Hires by Month
+with c4:
+    st.markdown("📈 **Hires by Month**")
+    month_counts = filtered_df["Month"].value_counts().reset_index()
+    month_counts.columns = ["Month", "Count"]
+    fig = px.bar(month_counts, x="Month", y="Count", color="Month", text="Count")
+    st.plotly_chart(fig, use_container_width=True)
+
+# Hires by Recruiter
+with c5:
+    st.markdown("🧑‍💼 **Hires by Recruiter**")
+    recruiter_counts = filtered_df["Recruiter"].value_counts().reset_index()
+    recruiter_counts.columns = ["Recruiter", "Count"]
+    fig = px.bar(recruiter_counts, x="Recruiter", y="Count", color="Recruiter", text="Count")
+    st.plotly_chart(fig, use_container_width=True)
