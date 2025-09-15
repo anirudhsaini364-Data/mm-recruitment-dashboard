@@ -68,8 +68,8 @@ st.markdown("""
 st.markdown(
     """
     <div class="main-header">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Mahindra_and_Mahindra_logo.png" alt="M&M Logo">
-        <span>🚀 Mahindra & Mahindra – Recruitment Dashboard</span>
+        
+        <span> Mahindra & Mahindra – Recruitment Dashboard</span>
     </div>
     """,
     unsafe_allow_html=True,
@@ -168,3 +168,4 @@ with col2:
                   color_discrete_sequence=px.colors.qualitative.Set2)
     fig4.update_traces(textposition="outside")
     st.plotly_chart(fig4, use_container_width=True)
+
