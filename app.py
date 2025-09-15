@@ -61,7 +61,7 @@ def kpi_card(title, value, color):
     <div style="
         background-color:white;
         padding:15px;
-        border-radius:12px;
+        border-radius:10px;
         text-align:center;
         box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
         margin:5px;
@@ -134,3 +134,4 @@ with c5:
     recruiter_counts.columns = ["Recruiter", "Count"]
     fig = px.bar(recruiter_counts, x="Recruiter", y="Count", color="Recruiter", text="Count")
     st.plotly_chart(fig, use_container_width=True)
+
