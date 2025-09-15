@@ -1,102 +1,95 @@
-import pandas as pd
 import streamlit as st
+import pandas as pd
 import plotly.express as px
 
-# ---------------------------
+# ----------------------
 # Dummy Data
-# ---------------------------
+# ----------------------
 data = {
-    "Job Req ID": range(101, 121),
-    "Department": ["Sales","Marketing","Operations","HR","IT"]*4,
-    "Status": ["Joined","Offered","Selection","In Process","Reserve for IJP","Cancelled","Joined","Offered","In Process","Cancelled"]*2,
-    "Source": ["Referral","Job Portal","Consultant","Direct","Referral"]*4,
-    "Recruiter": ["John","Alice","Rahul","Priya","Ankit"]*4,
-    "Offer Date": pd.date_range(start="2025-06-01", periods=20, freq="3D"),
-    "Joining Date": pd.date_range(start="2025-06-05", periods=20, freq="3D")
+    "Department": ["IT", "HR", "Finance", "IT", "HR", "Finance", "IT", "HR", "Finance", "IT"],
+    "Recruiter": ["A", "B", "C", "A", "B", "C", "D", "E", "F", "A"],
+    "Status": [
+        "Joined", "Offer", "In Process", "Cancelled", "Joined",
+        "Selection", "Offer", "Reserve for IJP", "Joined", "Cancelled"
+    ]
 }
 df = pd.DataFrame(data)
 
-# ---------------------------
+# ----------------------
 # Page Config
-# ---------------------------
-st.set_page_config(page_title="M&M Recruitment Dashboard", layout="wide")
-st.title("🚀 Mahindra & Mahindra – Recruitment Dashboard")
-st.markdown("---")
+# ----------------------
+st.set_page_config(page_title="Recruitment Dashboard", layout="wide")
 
-# ---------------------------
-# Filters (1 row)
-# ---------------------------
-col_filter1, col_filter2, col_filter3 = st.columns(3)
-with col_filter1:
-    dept_filter = st.selectbox("Filter by Department", options=["All"] + list(df["Department"].unique()))
-with col_filter2:
-    status_filter = st.selectbox("Filter by Status", options=["All"] + list(df["Status"].unique()))
-with col_filter3:
-    rec_filter = st.selectbox("Filter by Recruiter", options=["All"] + list(df["Recruiter"].unique()))
+# ----------------------
+# Title
+# ----------------------
+st.markdown("<h1 style='text-align: center;'>🚀 Mahindra & Mahindra – Recruitment Dashboard</h1>", unsafe_allow_html=True)
+
+# ----------------------
+# Filters
+# ----------------------
+col1, col2, col3 = st.columns(3)
+with col1:
+    dept_filter = st.selectbox("Filter by Department", ["All"] + df["Department"].unique().tolist())
+with col2:
+    status_filter = st.selectbox("Filter by Status", ["All"] + df["Status"].unique().tolist())
+with col3:
+    recruiter_filter = st.selectbox("Filter by Recruiter", ["All"] + df["Recruiter"].unique().tolist())
 
 # Apply Filters
-dff = df.copy()
+filtered_df = df.copy()
 if dept_filter != "All":
-    dff = dff[dff["Department"]==dept_filter]
+    filtered_df = filtered_df[filtered_df["Department"] == dept_filter]
 if status_filter != "All":
-    dff = dff[dff["Status"]==status_filter]
-if rec_filter != "All":
-    dff = dff[dff["Recruiter"]==rec_filter]
+    filtered_df = filtered_df[filtered_df["Status"] == status_filter]
+if recruiter_filter != "All":
+    filtered_df = filtered_df[filtered_df["Recruiter"] == recruiter_filter]
 
-# ---------------------------
-# KPI Cards (Big and colored)
-# ---------------------------
-kpi_cols = st.columns(7)
+# ----------------------
+# KPIs in One Row
+# ----------------------
+col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
 
-kpi_values = [
-    ("Total Positions", dff['Job Req ID'].nunique(), "#FF0000"),
-    ("Total Offers", dff[dff['Status']=="Offered"].shape[0], "#FF6600"),
-    ("Joined", dff[dff['Status']=="Joined"].shape[0], "#009900"),
-    ("Selection", dff[dff['Status']=="Selection"].shape[0], "#0066FF"),
-    ("In Process", dff[dff['Status']=="In Process"].shape[0], "#FFCC00"),
-    ("Reserve for IJP", dff[dff['Status']=="Reserve for IJP"].shape[0], "#9900CC"),
-    ("Cancelled", dff[dff['Status']=="Cancelled"].shape[0], "#666666"),
-]
+total_positions = len(filtered_df)
+total_offers = (filtered_df["Status"] == "Offer").sum()
+joined = (filtered_df["Status"] == "Joined").sum()
+selection = (filtered_df["Status"] == "Selection").sum()
+in_process = (filtered_df["Status"] == "In Process").sum()
+reserve = (filtered_df["Status"] == "Reserve for IJP").sum()
+cancelled = (filtered_df["Status"] == "Cancelled").sum()
 
-for i, (title, value, color) in enumerate(kpi_values):
-    kpi_cols[i].markdown(f"""
-        <div style="background-color:#F5F5F5; padding:15px; border-radius:10px; text-align:center;">
-            <h4 style="color:{color};">{title}</h4>
-            <h2 style="color:{color};">{value}</h2>
-        </div>
-    """, unsafe_allow_html=True)
+with col1:
+    st.markdown(f"<h4 style='color:red;'>Total Positions</h4><h2 style='color:red;'>{total_positions}</h2>", unsafe_allow_html=True)
+with col2:
+    st.markdown(f"<h4 style='color:orange;'>Total Offers</h4><h2 style='color:orange;'>{total_offers}</h2>", unsafe_allow_html=True)
+with col3:
+    st.markdown(f"<h4 style='color:green;'>Joined</h4><h2 style='color:green;'>{joined}</h2>", unsafe_allow_html=True)
+with col4:
+    st.markdown(f"<h4 style='color:blue;'>Selection</h4><h2 style='color:blue;'>{selection}</h2>", unsafe_allow_html=True)
+with col5:
+    st.markdown(f"<h4 style='color:gold;'>In Process</h4><h2 style='color:gold;'>{in_process}</h2>", unsafe_allow_html=True)
+with col6:
+    st.markdown(f"<h4 style='color:purple;'>Reserve for IJP</h4><h2 style='color:purple;'>{reserve}</h2>", unsafe_allow_html=True)
+with col7:
+    st.markdown(f"<h4 style='color:grey;'>Cancelled</h4><h2 style='color:grey;'>{cancelled}</h2>", unsafe_allow_html=True)
 
 st.markdown("---")
 
-# ---------------------------
-# Charts in 2x2 layout
-# ---------------------------
+# ----------------------
+# Charts in Two Columns
+# ----------------------
 col1, col2 = st.columns(2)
 
-# Left Column
 with col1:
-    pie = px.pie(dff, names='Department', values='Job Req ID', title='Hires by Department', hole=0)
-    pie.update_traces(textinfo='percent+label', marker=dict(colors=px.colors.qualitative.Pastel))
-    st.plotly_chart(pie, use_container_width=True)
+    st.subheader("Hires by Department")
+    dept_chart = filtered_df["Department"].value_counts().reset_index()
+    dept_chart.columns = ["Department", "Count"]
+    fig1 = px.pie(dept_chart, names="Department", values="Count")
+    st.plotly_chart(fig1, use_container_width=True)
 
-    bar = px.bar(dff.groupby('Status').size().reset_index(name='Count'),
-                 x='Status', y='Count', title='Pipeline by Stage',
-                 color='Count', color_continuous_scale='Reds')
-    bar.update_layout(showlegend=False)
-    st.plotly_chart(bar, use_container_width=True)
-
-# Right Column
 with col2:
-    donut = px.pie(dff, names='Source', values='Job Req ID', hole=0.5, title='Source Mix')
-    donut.update_traces(textinfo='percent+label', marker=dict(colors=px.colors.qualitative.Vivid))
-    st.plotly_chart(donut, use_container_width=True)
-
-    column = px.bar(dff.groupby(dff['Joining Date'].dt.strftime('%b'))['Job Req ID'].count()
-                    .reset_index(name='Hires'),
-                    x='Joining Date', y='Hires', title='Monthly Hiring Trend',
-                    color='Hires', color_continuous_scale='Blues')
-    column.update_layout(showlegend=False)
-    st.plotly_chart(column, use_container_width=True)
-
-st.markdown("---")
-st.caption("Dashboard powered by Streamlit | Dummy data for demonstration")
+    st.subheader("Source Mix")
+    source_chart = filtered_df["Status"].value_counts().reset_index()
+    source_chart.columns = ["Status", "Count"]
+    fig2 = px.pie(source_chart, names="Status", values="Count")
+    st.plotly_chart(fig2, use_container_width=True)
