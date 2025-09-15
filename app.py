@@ -22,18 +22,27 @@ df = pd.DataFrame(data)
 st.set_page_config(page_title="M&M Recruitment Dashboard", layout="wide")
 
 # ----------------------
-# Custom CSS for Mahindra Theme
+# Custom CSS
 # ----------------------
 st.markdown("""
     <style>
         body { background-color: #fafafa; }
-        .header {
+        .main-header {
             background-color: #E31837;
-            padding: 12px;
+            padding: 15px;
             border-radius: 8px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        .main-header img {
+            height: 40px;
+        }
+        .main-header span {
             color: white;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: bold;
         }
         .card {
@@ -46,14 +55,22 @@ st.markdown("""
         }
         .metric-label { font-size:14px; font-weight:600; color:#444; }
         .metric-value { font-size:20px; font-weight:bold; }
-        .block-container { padding-top:1rem; padding-bottom:0rem; }
+        .block-container { padding-top:0.5rem; padding-bottom:0rem; }
     </style>
 """, unsafe_allow_html=True)
 
 # ----------------------
-# Header
+# Header with Logo
 # ----------------------
-st.markdown("<div class='header'>🚀 Mahindra & Mahindra – Recruitment Dashboard</div>", unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="main-header">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Mahindra_and_Mahindra_logo.png" alt="M&M Logo">
+        <span>🚀 Mahindra & Mahindra – Recruitment Dashboard</span>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # ----------------------
 # Filters
@@ -96,7 +113,7 @@ for col, (label, value), color in zip([col1, col2, col3, col4, col5, col6, col7]
                     f"<div class='metric-value' style='color:{color}'>{value}</div></div>", unsafe_allow_html=True)
 
 # ----------------------
-# Charts Row 1 (Pie + Donut + Funnel)
+# Charts Row 1
 # ----------------------
 col1, col2, col3 = st.columns(3)
 
@@ -104,7 +121,8 @@ with col1:
     st.subheader("📊 Hires by Department")
     dept_chart = filtered_df["Department"].value_counts().reset_index()
     dept_chart.columns = ["Department", "Count"]
-    fig1 = px.pie(dept_chart, names="Department", values="Count", hole=0, height=250, color_discrete_sequence=px.colors.sequential.Reds)
+    fig1 = px.pie(dept_chart, names="Department", values="Count", hole=0, height=250,
+                  color_discrete_sequence=px.colors.sequential.Reds)
     fig1.update_traces(textinfo="percent+label")
     st.plotly_chart(fig1, use_container_width=True)
 
@@ -112,7 +130,8 @@ with col2:
     st.subheader("🍩 Source Mix")
     source_chart = filtered_df["Status"].value_counts().reset_index()
     source_chart.columns = ["Status", "Count"]
-    fig2 = px.pie(source_chart, names="Status", values="Count", hole=0.5, height=250, color_discrete_sequence=px.colors.qualitative.Set2)
+    fig2 = px.pie(source_chart, names="Status", values="Count", hole=0.5, height=250,
+                  color_discrete_sequence=px.colors.qualitative.Set2)
     fig2.update_traces(textinfo="percent+label")
     st.plotly_chart(fig2, use_container_width=True)
 
@@ -120,11 +139,12 @@ with col3:
     st.subheader("🔻 Recruitment Funnel")
     funnel_data = filtered_df["Status"].value_counts().reset_index()
     funnel_data.columns = ["Stage", "Count"]
-    fig5 = px.funnel(funnel_data, x="Count", y="Stage", height=250, color="Stage", color_discrete_sequence=px.colors.sequential.Reds)
+    fig5 = px.funnel(funnel_data, x="Count", y="Stage", height=250,
+                     color="Stage", color_discrete_sequence=px.colors.sequential.Reds)
     st.plotly_chart(fig5, use_container_width=True)
 
 # ----------------------
-# Charts Row 2 (Bar + Column)
+# Charts Row 2
 # ----------------------
 col1, col2 = st.columns(2)
 
@@ -132,7 +152,8 @@ with col1:
     st.subheader("📈 Hires by Month")
     month_chart = filtered_df["Month"].value_counts().reset_index()
     month_chart.columns = ["Month", "Count"]
-    fig3 = px.bar(month_chart, x="Month", y="Count", text="Count", color="Month", height=250, color_discrete_sequence=px.colors.sequential.Reds)
+    fig3 = px.bar(month_chart, x="Month", y="Count", text="Count", color="Month", height=250,
+                  color_discrete_sequence=px.colors.sequential.Reds)
     fig3.update_traces(textposition="outside")
     st.plotly_chart(fig3, use_container_width=True)
 
@@ -140,7 +161,7 @@ with col2:
     st.subheader("👤 Hires by Recruiter")
     rec_chart = filtered_df["Recruiter"].value_counts().reset_index()
     rec_chart.columns = ["Recruiter", "Count"]
-    fig4 = px.bar(rec_chart, x="Recruiter", y="Count", text="Count", color="Recruiter", height=250, color_discrete_sequence=px.colors.qualitative.Set2)
+    fig4 = px.bar(rec_chart, x="Recruiter", y="Count", text="Count", color="Recruiter", height=250,
+                  color_discrete_sequence=px.colors.qualitative.Set2)
     fig4.update_traces(textposition="outside")
     st.plotly_chart(fig4, use_container_width=True)
-
